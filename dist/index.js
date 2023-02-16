@@ -38,7 +38,7 @@ app.get('/unshorten/:id', (req, res) => {
         res.status(400).send("400: index undefined");
     }
     else {
-        connection.query(`SELECT input_url
+        connection.query(`SELECT input_url as url
                           FROM url_table
                           WHERE output_url = ?`, [urlIndex], function (err, result, fields) {
             if (err)

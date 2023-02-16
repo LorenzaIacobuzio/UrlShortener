@@ -6,7 +6,8 @@ export function startDatabaseConnection() {
         user: 'root',
         password: 'lorenza',
         database: 'url_shortener_db',
-        port: 49155
+        port: 49155,
+
     })
 
     connection.connect((err: any) => {

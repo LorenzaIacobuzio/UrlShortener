@@ -34,7 +34,7 @@ app.get('/unshorten/:id', (req: Request, res: Response) => {
     if (urlIndex === undefined) {
         res.status(400).send("400: index undefined")
     } else {
-        connection.query(`SELECT input_url
+        connection.query(`SELECT input_url as url
                           FROM url_table
                           WHERE output_url = ?`, [urlIndex], function (err: any, result: any, fields: any) {
             if (err) res.status(500).send("500: internal server error")
