@@ -1,39 +1,17 @@
 import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
+import {startDatabaseConnection} from "./database";
 
-dotenv.config()
-
+let connection: any
 const app: Express = express()
 const port = 8080
-const mysql = require('mysql')
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'lorenza',
-    database: 'url_shortener_db',
-    port: 49155
-})
-
-connection.connect((err: any) => {
-    if (err) {
-        console.log("Database Connection Failed !!!", err)
-    } else {
-        console.log("connected to Database")
-    }
-});
-
-module.exports = connection
-
+dotenv.config()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
-})
-
 app.get('/status', (req: Request, res: Response) => {
-    res.status(200).send("200: all is good")
+    res.status(200).send()
 })
 
 app.post('/shorten', (req: Request, res: Response) => {
@@ -65,3 +43,12 @@ app.get('/unshorten/:id', (req: Request, res: Response) => {
         })
     }
 })
+
+export function startServer() {
+    connection = startDatabaseConnection()
+    app.listen(port, () => {
+        console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
+    })
+}
+
+export default app

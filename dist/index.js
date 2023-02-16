@@ -3,35 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.startServer = void 0;
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+const database_1 = require("./database");
+let connection;
 const app = (0, express_1.default)();
 const port = 8080;
-const mysql = require('mysql');
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'lorenza',
-    database: 'url_shortener_db',
-    port: 49155
-});
-connection.connect((err) => {
-    if (err) {
-        console.log("Database Connection Failed !!!", err);
-    }
-    else {
-        console.log("connected to Database");
-    }
-});
-module.exports = connection;
+dotenv_1.default.config();
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
-app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
-});
 app.get('/status', (req, res) => {
-    res.status(200).send("200: all is good");
+    res.status(200).send();
 });
 app.post('/shorten', (req, res) => {
     let reqUrl = req.body.url;
@@ -67,4 +50,12 @@ app.get('/unshorten/:id', (req, res) => {
         });
     }
 });
+function startServer() {
+    connection = (0, database_1.startDatabaseConnection)();
+    app.listen(port, () => {
+        console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    });
+}
+exports.startServer = startServer;
+exports.default = app;
 //# sourceMappingURL=index.js.map
