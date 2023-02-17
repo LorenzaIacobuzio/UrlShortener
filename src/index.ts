@@ -19,13 +19,20 @@ app.post('/shorten', (req: Request, res: Response) => {
     if (reqUrl === undefined) {
         res.status(400).send("400: url undefined")
     } else {
-        try {
-            connection.query(`CREATE TABLE IF NOT EXISTS url_table (input_url VARCHAR(512), output_url INT(10))`)
-            connection.query(`INSERT INTO url_table (input_url, output_url) VALUES(?, ?)`, [reqUrl, 1])
-            res.status(200).send({url: reqUrl + '/1'})
-        } catch (error) {
-            res.status(500).send("500: internal server error")
-        }
+        const randomIndex = Math.floor(10000 + Math.random() * 90001)
+        connection.query(`CREATE TABLE IF NOT EXISTS url_table
+                          (
+                              input_url    VARCHAR(512) UNIQUE,
+                              output_index INT(10) UNIQUE
+                          )`)
+        connection.query(`INSERT IGNORE INTO url_table (input_url, output_index)
+                          VALUES (?, ?)`, [reqUrl, randomIndex])
+        connection.query(`SELECT output_index as url
+                          FROM url_table
+                          WHERE input_url = ?`, [reqUrl], function (err: any, result: any, fields: any) {
+            if (err) res.status(500).send("500: internal server error")
+            else res.status(200).send(JSON.parse(JSON.stringify(result)))
+        })
     }
 })
 
@@ -36,7 +43,7 @@ app.get('/unshorten/:id', (req: Request, res: Response) => {
     } else {
         connection.query(`SELECT input_url as url
                           FROM url_table
-                          WHERE output_url = ?`, [urlIndex], function (err: any, result: any, fields: any) {
+                          WHERE output_index = ?`, [urlIndex], function (err: any, result: any, fields: any) {
             if (err) res.status(500).send("500: internal server error")
             else if (result.length === 0) res.status(404).send("404: index not found")
             else res.status(200).send(JSON.parse(JSON.stringify(result)))
