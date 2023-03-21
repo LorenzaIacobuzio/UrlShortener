@@ -17,8 +17,8 @@ function startDatabaseConnection() {
     return connection;
 }
 exports.startDatabaseConnection = startDatabaseConnection;
-function stopDatabaseConnection() {
-    connection.end();
+async function stopDatabaseConnection() {
+    await connection.end();
 }
 exports.stopDatabaseConnection = stopDatabaseConnection;
 //# sourceMappingURL=database.js.map

@@ -14,6 +14,6 @@ export function startDatabaseConnection() {
     return connection
 }
 
-export function stopDatabaseConnection() {
-    connection.end()
+export async function stopDatabaseConnection() {
+    await connection.end()
 }

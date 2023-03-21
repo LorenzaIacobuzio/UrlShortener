@@ -1,14 +1,15 @@
 import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
-import {startDatabaseConnection, stopDatabaseConnection} from "./database";
-import {createHttpTerminator, HttpTerminator} from "http-terminator";
+import {startDatabaseConnection, stopDatabaseConnection} from "./database"
+import { IncomingMessage, ServerResponse } from 'http'
+import * as http from "http"
 
 let connection: any
 const app: Express = express()
 const port = 8080
 
 dotenv.config()
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 
 app.get('/status', (req: Request, res: Response) => {
@@ -52,19 +53,18 @@ app.get('/unshorten/:id', (req: Request, res: Response) => {
     }
 })
 
-let httpTerminator: { terminate: any; }
+let server: http.Server<typeof IncomingMessage, typeof ServerResponse>
 
-export function startServer() {
+export async function startServer() {
     connection = startDatabaseConnection()
-    let server = app.listen(port, () => {
+    server = await app.listen(port, () => {
         console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
     })
-    httpTerminator = createHttpTerminator({ server})
 }
 
 export async function stopServer() {
-    stopDatabaseConnection()
-    await httpTerminator.terminate()
+    await stopDatabaseConnection()
+    server.close()
 }
 
 export default app

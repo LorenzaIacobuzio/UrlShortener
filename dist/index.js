@@ -7,7 +7,6 @@ exports.stopServer = exports.startServer = void 0;
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const database_1 = require("./database");
-const http_terminator_1 = require("http-terminator");
 let connection;
 const app = (0, express_1.default)();
 const port = 8080;
@@ -59,18 +58,17 @@ app.get('/unshorten/:id', (req, res) => {
         });
     }
 });
-let httpTerminator;
-function startServer() {
+let server;
+async function startServer() {
     connection = (0, database_1.startDatabaseConnection)();
-    let server = app.listen(port, () => {
+    server = await app.listen(port, () => {
         console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
     });
-    httpTerminator = (0, http_terminator_1.createHttpTerminator)({ server });
 }
 exports.startServer = startServer;
 async function stopServer() {
-    (0, database_1.stopDatabaseConnection)();
-    await httpTerminator.terminate();
+    await (0, database_1.stopDatabaseConnection)();
+    server.close();
 }
 exports.stopServer = stopServer;
 exports.default = app;
