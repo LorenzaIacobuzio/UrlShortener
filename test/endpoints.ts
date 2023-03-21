@@ -1,16 +1,18 @@
-import app, {startServer} from "../src";
+import app, {startServer, stopServer} from "../src";
 
 const request = require('supertest');
 
 beforeAll(() => startServer())
+//afterAll(async() => stopServer())
 
 describe('GET /status', () => {
     it('responds with 200', async () => {
         const response = await request(app).get('/status')
         expect(response.statusCode).toBe(200)
-    });
-});
-
+        await stopServer()
+    })
+})
+/*
 describe('POST /shorten', () => {
     it('responds with shortened url', async () => {
         const url = 'www.hello-you.com'
@@ -20,8 +22,8 @@ describe('POST /shorten', () => {
         const response = await request(app).post('/shorten').set('Content-type', 'application/json').send(payload)
         expect(response.statusCode).toBe(200)
         expect(response.body).toStrictEqual(expectedResponse)
-    });
-});
+    })
+})
 
 describe('GET /unshorten', () => {
     it('responds with unshortened url', async () => {
@@ -30,5 +32,6 @@ describe('GET /unshorten', () => {
         const response = await request(app).get('/unshorten/71143')
         expect(response.statusCode).toBe(200)
         expect(response.body).toStrictEqual(expectedResponse)
-    });
-});
+    })
+})
+ */

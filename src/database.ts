@@ -1,18 +1,19 @@
-const mysql = require('mysql')
-
+const mysql = require('mysql2')
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'lorenza',
+    database: 'url_db',
+    port: 3306,
+})
 export function startDatabaseConnection() {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'lorenza',
-        database: 'url_shortener_db',
-        port: 49155,
-
-    })
-
     connection.connect((err: any) => {
         if (err) throw err
     });
 
     return connection
+}
+
+export function stopDatabaseConnection() {
+    connection.end()
 }

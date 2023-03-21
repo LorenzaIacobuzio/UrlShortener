@@ -1,0 +1,3 @@
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+USE url_db;
+FLUSH PRIVILEGES;

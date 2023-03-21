@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startDatabaseConnection = void 0;
-const mysql = require('mysql');
+exports.stopDatabaseConnection = exports.startDatabaseConnection = void 0;
+const mysql = require('mysql2');
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'lorenza',
+    database: 'url_db',
+    port: 3306,
+});
 function startDatabaseConnection() {
-    const connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'lorenza',
-        database: 'url_shortener_db',
-        port: 49155,
-    });
     connection.connect((err) => {
         if (err)
             throw err;
@@ -17,4 +17,8 @@ function startDatabaseConnection() {
     return connection;
 }
 exports.startDatabaseConnection = startDatabaseConnection;
+function stopDatabaseConnection() {
+    connection.end();
+}
+exports.stopDatabaseConnection = stopDatabaseConnection;
 //# sourceMappingURL=database.js.map

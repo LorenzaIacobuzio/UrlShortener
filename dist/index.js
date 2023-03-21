@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startServer = void 0;
+exports.stopServer = exports.startServer = void 0;
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const database_1 = require("./database");
+const http_terminator_1 = require("http-terminator");
 let connection;
 const app = (0, express_1.default)();
 const port = 8080;
@@ -58,12 +59,19 @@ app.get('/unshorten/:id', (req, res) => {
         });
     }
 });
+let httpTerminator;
 function startServer() {
     connection = (0, database_1.startDatabaseConnection)();
-    app.listen(port, () => {
+    let server = app.listen(port, () => {
         console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
     });
+    httpTerminator = (0, http_terminator_1.createHttpTerminator)({ server });
 }
 exports.startServer = startServer;
+async function stopServer() {
+    (0, database_1.stopDatabaseConnection)();
+    await httpTerminator.terminate();
+}
+exports.stopServer = stopServer;
 exports.default = app;
 //# sourceMappingURL=index.js.map

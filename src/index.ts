@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express'
 import dotenv from 'dotenv'
-import {startDatabaseConnection} from "./database";
+import {startDatabaseConnection, stopDatabaseConnection} from "./database";
+import {createHttpTerminator, HttpTerminator} from "http-terminator";
 
 let connection: any
 const app: Express = express()
@@ -51,11 +52,19 @@ app.get('/unshorten/:id', (req: Request, res: Response) => {
     }
 })
 
+let httpTerminator: { terminate: any; }
+
 export function startServer() {
     connection = startDatabaseConnection()
-    app.listen(port, () => {
+    let server = app.listen(port, () => {
         console.log(`⚡️[server]: Server is running at http://localhost:${port}`)
     })
+    httpTerminator = createHttpTerminator({ server})
+}
+
+export async function stopServer() {
+    stopDatabaseConnection()
+    await httpTerminator.terminate()
 }
 
 export default app
