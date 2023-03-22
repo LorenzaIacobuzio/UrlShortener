@@ -8,6 +8,9 @@ import {startDatabaseConnection, stopDatabaseConnection} from "./database.js"
 let connection: any
 const app: Express = express()
 const port = 8080
+const host = 'localhost'
+const url = 'http://' + host + ':' + port.toString() + '/'
+
 
 dotenv.config()
 app.use(express.urlencoded({extended: true}))
@@ -29,7 +32,7 @@ app.post('/shorten', (req: Request, res: Response) => {
                           FROM urls
                           WHERE url = ?`, [reqUrl], function (err: any, result: any, fields: any) {
             if (err) res.status(500).send("500: internal server error")
-            else res.status(200).send(JSON.parse(JSON.stringify(result)))
+            else res.status(200).send(JSON.parse(JSON.stringify(url + result[0].url)))
         })
     }
 })
@@ -44,7 +47,7 @@ app.get('/unshorten/:id', (req: Request, res: Response) => {
                           WHERE urlindex = ?`, [urlIndex], function (err: any, result: any, fields: any) {
             if (err) res.status(500).send("500: internal server error")
             else if (result.length === 0) res.status(404).send("404: index not found")
-            else res.status(200).send(JSON.parse(JSON.stringify(result)))
+            else res.status(200).send(JSON.parse(JSON.stringify(result[0].url)))
         })
     }
 })

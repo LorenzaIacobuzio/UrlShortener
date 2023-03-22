@@ -5,6 +5,8 @@ import { startDatabaseConnection, stopDatabaseConnection } from "./database.js";
 let connection;
 const app = express();
 const port = 8080;
+const host = 'localhost';
+const url = 'http://' + host + ':' + port.toString() + '/';
 dotenv.config();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -26,7 +28,7 @@ app.post('/shorten', (req, res) => {
             if (err)
                 res.status(500).send("500: internal server error");
             else
-                res.status(200).send(JSON.parse(JSON.stringify(result)));
+                res.status(200).send(JSON.parse(JSON.stringify(url + result[0].url)));
         });
     }
 });
@@ -44,7 +46,7 @@ app.get('/unshorten/:id', (req, res) => {
             else if (result.length === 0)
                 res.status(404).send("404: index not found");
             else
-                res.status(200).send(JSON.parse(JSON.stringify(result)));
+                res.status(200).send(JSON.parse(JSON.stringify(result[0].url)));
         });
     }
 });
