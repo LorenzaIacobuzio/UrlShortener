@@ -1,20 +1,3 @@
-To start application:
-
-docker-compose up -d
-npm run start
-
-To start mysql from cli:
-
-mysql -h 127.0.0.1 -P 3306 -u root -p
-
-To purge database:
-
-docker-compose down -v
-docker-compose up -d
-migrations should kick in
-
-
-
 Improvements to application (for discussion):
 
 - add gitignore
