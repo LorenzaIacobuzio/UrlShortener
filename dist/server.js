@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const index_1 = require("./index");
-(0, index_1.startServer)();
+import { startServer } from "./index.js";
+await startServer();
 //# sourceMappingURL=server.js.map

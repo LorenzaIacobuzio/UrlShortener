@@ -1,18 +1,13 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.stopServer = exports.startServer = void 0;
-const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const database_1 = require("./database");
+import express from 'express';
+import dotenv from 'dotenv';
+import knex from 'knex';
+import { startDatabaseConnection, stopDatabaseConnection } from "./database.js";
 let connection;
-const app = (0, express_1.default)();
+const app = express();
 const port = 8080;
-dotenv_1.default.config();
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use(express_1.default.json());
+dotenv.config();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.get('/status', (req, res) => {
     res.status(200).send();
 });
@@ -23,16 +18,11 @@ app.post('/shorten', (req, res) => {
     }
     else {
         const randomIndex = Math.floor(10000 + Math.random() * 90001);
-        connection.query(`CREATE TABLE IF NOT EXISTS url_table
-                          (
-                              input_url    VARCHAR(512) UNIQUE,
-                              output_index INT(10) UNIQUE
-                          )`);
-        connection.query(`INSERT IGNORE INTO url_table (input_url, output_index)
+        connection.query(`INSERT IGNORE INTO urls (url, urlIndex)
                           VALUES (?, ?)`, [reqUrl, randomIndex]);
-        connection.query(`SELECT output_index as url
-                          FROM url_table
-                          WHERE input_url = ?`, [reqUrl], function (err, result, fields) {
+        connection.query(`SELECT urlIndex as url
+                          FROM urls
+                          WHERE url = ?`, [reqUrl], function (err, result, fields) {
             if (err)
                 res.status(500).send("500: internal server error");
             else
@@ -46,9 +36,9 @@ app.get('/unshorten/:id', (req, res) => {
         res.status(400).send("400: index undefined");
     }
     else {
-        connection.query(`SELECT input_url as url
-                          FROM url_table
-                          WHERE output_index = ?`, [urlIndex], function (err, result, fields) {
+        connection.query(`SELECT url as url
+                          FROM urls
+                          WHERE urlindex = ?`, [urlIndex], function (err, result, fields) {
             if (err)
                 res.status(500).send("500: internal server error");
             else if (result.length === 0)
@@ -59,17 +49,31 @@ app.get('/unshorten/:id', (req, res) => {
     }
 });
 let server;
-async function startServer() {
-    connection = (0, database_1.startDatabaseConnection)();
-    server = await app.listen(port, () => {
+export async function startServer() {
+    connection = startDatabaseConnection();
+    const knexClient = knex({
+        client: 'mysql2',
+        connection: {
+            database: "url_db",
+            user: "root",
+            password: "lorenza"
+        },
+        pool: {
+            min: 2,
+            max: 10
+        },
+        migrations: {
+            tableName: "migrations"
+        }
+    });
+    await knexClient.migrate.latest();
+    server = app.listen(port, () => {
         console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
     });
 }
-exports.startServer = startServer;
-async function stopServer() {
-    await (0, database_1.stopDatabaseConnection)();
+export async function stopServer() {
+    await stopDatabaseConnection();
     server.close();
 }
-exports.stopServer = stopServer;
-exports.default = app;
+export default app;
 //# sourceMappingURL=index.js.map
